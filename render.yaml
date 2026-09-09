@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: classroom-management-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build && npx prisma generate
+    startCommand: npx prisma migrate deploy && npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: BETTER_AUTH_SECRET
+        sync: false
+      - key: BETTER_AUTH_URL
+        sync: false
+      - key: CLIENT_ORIGIN
+        sync: false
+      - key: ARCJET_KEY
+        sync: false
+      - key: APMINSIGHT_LICENSE_KEY
+        sync: false
+      - key: APMINSIGHT_APP_NAME
+        value: classroom-backend

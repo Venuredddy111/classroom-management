@@ -1,7 +1,7 @@
-import AgentAPI from "apminsight";
-AgentAPI.config()
-
 import "dotenv/config";
+import AgentAPI from "apminsight";
+AgentAPI.config();
+
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
