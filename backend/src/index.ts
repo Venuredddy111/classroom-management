@@ -22,6 +22,11 @@ const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:5173";
 
 app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
 
+// Health checks are meant to be hit by automated systems (Render's own
+// infra checks, uptime monitors) — exempt this one path from bot detection
+// by handling it before arcjetProtect runs.
+app.get("/health", (_req, res) => res.json({ status: "ok" }));
+
 // attachSession only reads req.headers directly (via better-auth's
 // fromNodeHeaders), so it doesn't need cookie-parser or express.json first.
 // It runs before arcjetProtect so rate limits can be scaled by req.user.role.
@@ -36,8 +41,6 @@ app.all("/api/auth/*", toNodeHandler(auth));
 
 app.use(express.json());
 app.use(cookieParser());
-
-app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
 app.use("/api/departments", departmentsRouter);
 app.use("/api/subjects", subjectsRouter);
