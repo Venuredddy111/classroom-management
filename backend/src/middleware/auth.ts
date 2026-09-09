@@ -35,7 +35,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-  next();
+  next(); 
 }
 
 /** 403s any authenticated request whose role isn't in the allowed list. */
