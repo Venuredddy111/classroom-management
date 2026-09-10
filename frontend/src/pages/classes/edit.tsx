@@ -62,6 +62,7 @@ export const ClassEdit = () => {
   const form = useResourceForm<FormValues>(schema, { resource: "classes", action: "edit" });
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "schedules" });
   const subjectId = form.watch("subjectId");
+  const teacherId = form.watch("teacherId");
 
   return (
     <ResourceFormShell form={form} isLoading={form.refineCore.formLoading}>
@@ -116,9 +117,17 @@ export const ClassEdit = () => {
         name="teacherId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Teacher ID</FormLabel>
+            <FormLabel>Teacher</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <ComboboxField
+                resource="users"
+                optionLabel="name"
+                optionValue="id"
+                filters={[{ field: "role", operator: "eq", value: "teacher" }]}
+                value={field.value}
+                onChange={field.onChange}
+                defaultValue={teacherId}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

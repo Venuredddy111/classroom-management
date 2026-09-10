@@ -114,13 +114,17 @@ export const ClassCreate = () => {
         name="teacherId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Teacher ID</FormLabel>
+            <FormLabel>Teacher</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <ComboboxField
+                resource="users"
+                optionLabel="name"
+                optionValue="id"
+                filters={[{ field: "role", operator: "eq", value: "teacher" }]}
+                value={field.value}
+                onChange={field.onChange}
+              />
             </FormControl>
-            <p className="text-sm text-muted-foreground">
-              The id of a user with role 'teacher' (see the Users page).
-            </p>
             <FormMessage />
           </FormItem>
         )}
