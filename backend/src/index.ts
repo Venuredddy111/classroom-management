@@ -18,7 +18,7 @@ import { usersRouter } from "./routes/users";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 8000;
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:5173";
+const CLIENT_ORIGIN = (process.env.CLIENT_ORIGIN || "http://localhost:5173").trim();
 
 app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
 

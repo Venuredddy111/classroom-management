@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:5173";
+const CLIENT_ORIGIN = (process.env.CLIENT_ORIGIN || "http://localhost:5173").trim();
 
 /**
  * better-auth instance. Mounted at /api/auth/* in src/index.ts, which is
@@ -42,7 +42,7 @@ export const auth = betterAuth({
   },
   trustedOrigins: [CLIENT_ORIGIN],
   secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:8000",
+  baseURL: (process.env.BETTER_AUTH_URL || "http://localhost:8000").trim(),
 });
 
 export type Session = typeof auth.$Infer.Session;
