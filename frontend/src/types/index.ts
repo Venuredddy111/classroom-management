@@ -44,6 +44,8 @@ export interface ClassEntity {
   schedules: Schedule[];
   createdAt: string;
   updatedAt: string;
+  subject?: Subject;
+  teacher?: User;
 }
 
 export interface Enrollment {
