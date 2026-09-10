@@ -49,6 +49,8 @@ classesRouter.get(
     const subjectId = req.query.subjectId ? Number(req.query.subjectId) : undefined;
     const teacherId = typeof req.query.teacherId === "string" ? req.query.teacherId : undefined;
     const status = typeof req.query.status === "string" ? req.query.status : undefined;
+    const subjectName = typeof req.query.subject === "string" ? req.query.subject : undefined;
+    const teacherName = typeof req.query.teacher === "string" ? req.query.teacher : undefined;
 
     const where = {
       ...(search
@@ -62,10 +64,18 @@ classesRouter.get(
       ...(subjectId ? { subjectId } : {}),
       ...(teacherId ? { teacherId } : {}),
       ...(status ? { status: status as any } : {}),
+      ...(subjectName ? { subject: { name: { contains: subjectName, mode: "insensitive" as const } } } : {}),
+      ...(teacherName ? { teacher: { name: { contains: teacherName, mode: "insensitive" as const } } } : {}),
     };
 
     const [data, total] = await Promise.all([
-      prisma.class.findMany({ where, skip, take, orderBy: { name: "asc" } }),
+      prisma.class.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: "desc" },
+        include: { subject: true, teacher: true },
+      }),
       prisma.class.count({ where }),
     ]);
 
