@@ -32,7 +32,10 @@ function pickLimiter(req: Request) {
 
 /** Shield + bot detection + role-scaled rate limiting for every request. */
 export async function arcjetProtect(req: Request, res: Response, next: NextFunction) {
-  const decision = await pickLimiter(req).protect(req, { requested: 1 });
+  // Render (and most PaaS hosts) sit behind a proxy, so the raw socket IP
+  // isn't the real client IP — it arrives via X-Forwarded-For instead.
+  // req.ip resolves that correctly once Express's `trust proxy` is set.
+  const decision = await pickLimiter(req).protect(req, { requested: 1, ipSrc: req.ip });
 
   if (decision.isDenied()) {
     if (decision.reason.isRateLimit()) {

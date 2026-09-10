@@ -20,6 +20,12 @@ const app = express();
 const PORT = Number(process.env.PORT) || 8000;
 const CLIENT_ORIGIN = (process.env.CLIENT_ORIGIN || "http://localhost:5173").trim();
 
+// Render (like Heroku) proxies every request through one edge hop, so trust
+// exactly that one hop for req.ip / X-Forwarded-For to resolve correctly —
+// needed for Arcjet's per-IP rate limiting and bot detection to work at all
+// once deployed behind a load balancer.
+app.set("trust proxy", 1);
+
 app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
 
 // Health checks are meant to be hit by automated systems (Render's own
