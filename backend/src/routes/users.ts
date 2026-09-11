@@ -5,6 +5,7 @@ import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole } from "../middleware/auth";
 import { asyncHandler, AppError } from "../utils/asyncHandler";
 import { buildPaginationMeta, getPagination } from "../utils/pagination";
+import { parseSort } from "../utils/sorting";
 
 export const usersRouter = Router();
 
@@ -36,14 +37,28 @@ usersRouter.get(
     const { page, limit, skip, take } = getPagination(req);
     const role = typeof req.query.role === "string" ? req.query.role : undefined;
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
+    const createdFrom = typeof req.query.createdFrom === "string" ? new Date(req.query.createdFrom) : undefined;
+    const createdTo = typeof req.query.createdTo === "string" ? new Date(req.query.createdTo) : undefined;
 
     const where = {
       ...(role ? { role: role as any } : {}),
       ...(search ? { name: { contains: search, mode: "insensitive" as const } } : {}),
+      ...((createdFrom || createdTo)
+        ? { createdAt: { ...(createdFrom ? { gte: createdFrom } : {}), ...(createdTo ? { lte: createdTo } : {}) } }
+        : {}),
     };
 
+    const { field: sortField, order } = parseSort(req);
+    const allowedSort: Record<string, any> = {
+      name: { name: order },
+      email: { email: order },
+      role: { role: order },
+      createdAt: { createdAt: order },
+    };
+    const orderBy = (sortField && allowedSort[sortField]) || { name: "asc" };
+
     const [data, total] = await Promise.all([
-      prisma.user.findMany({ where, skip, take, orderBy: { name: "asc" } }),
+      prisma.user.findMany({ where, skip, take, orderBy }),
       prisma.user.count({ where }),
     ]);
 

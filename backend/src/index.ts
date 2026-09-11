@@ -15,6 +15,8 @@ import { subjectsRouter } from "./routes/subjects";
 import { classesRouter } from "./routes/classes";
 import { enrollmentsRouter } from "./routes/enrollments";
 import { usersRouter } from "./routes/users";
+import { dashboardRouter } from "./routes/dashboard";
+import { searchRouter } from "./routes/search";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 8000;
@@ -53,6 +55,8 @@ app.use("/api/subjects", subjectsRouter);
 app.use("/api/classes", classesRouter);
 app.use("/api/enrollments", enrollmentsRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/dashboard", dashboardRouter);
+app.use("/api/search", searchRouter);
 
 app.use((_req, res) => res.status(404).json({ error: "Not found" }));
 app.use(errorHandler);

@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole } from "../middleware/auth";
 import { asyncHandler, AppError } from "../utils/asyncHandler";
 import { buildPaginationMeta, getPagination } from "../utils/pagination";
+import { parseSort } from "../utils/sorting";
 
 export const departmentsRouter = Router();
 
@@ -33,12 +34,21 @@ departmentsRouter.get(
         }
       : {};
 
+    const { field: sortField, order } = parseSort(req);
+    const allowedSort: Record<string, any> = {
+      code: { code: order },
+      name: { name: order },
+      createdAt: { createdAt: order },
+      totalSubjects: { subjects: { _count: order } },
+    };
+    const orderBy = (sortField && allowedSort[sortField]) || { name: "asc" };
+
     const [rows, total] = await Promise.all([
       prisma.department.findMany({
         where,
         skip,
         take,
-        orderBy: { name: "asc" },
+        orderBy,
         include: { _count: { select: { subjects: true } } },
       }),
       prisma.department.count({ where }),

@@ -46,6 +46,7 @@ export interface ClassEntity {
   updatedAt: string;
   subject?: Subject;
   teacher?: User;
+  enrolledCount?: number;
 }
 
 export interface Enrollment {
@@ -54,6 +55,7 @@ export interface Enrollment {
   classId: number;
   enrolledAt: string;
   updatedAt: string;
+  student?: User;
 }
 
 export interface User {
@@ -66,4 +68,20 @@ export interface User {
   role: Role;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface DashboardStats {
+  totals: { departments: number; subjects: number; classes: number; enrollments: number; users: number };
+  usersByRole: { role: Role; count: number }[];
+  classesByDepartment: { department: string; count: number }[];
+  capacityDistribution: { bucket: string; count: number }[];
+  enrollmentTrend: { date: string; count: number }[];
+  activity: { type: "enrollment" | "class" | "user"; at: string; label: string }[];
+}
+
+export interface SearchResults {
+  departments?: { id: number; name: string; code: string }[];
+  subjects?: { id: number; name: string; code: string }[];
+  classes?: { id: number; name: string; inviteCode: string }[];
+  users?: { id: string; name: string; email: string }[];
 }

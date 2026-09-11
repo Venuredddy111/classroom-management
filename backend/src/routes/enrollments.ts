@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma";
 import { requireAuth, requireRole } from "../middleware/auth";
 import { asyncHandler, AppError } from "../utils/asyncHandler";
 import { buildPaginationMeta, getPagination } from "../utils/pagination";
+import { parseSort } from "../utils/sorting";
 
 export const enrollmentsRouter = Router();
 
@@ -39,11 +40,28 @@ enrollmentsRouter.get(
     const { page, limit, skip, take } = getPagination(req);
     const classId = req.query.classId ? Number(req.query.classId) : undefined;
     const studentId = typeof req.query.studentId === "string" ? req.query.studentId : undefined;
+    const enrolledFrom = typeof req.query.enrolledFrom === "string" ? new Date(req.query.enrolledFrom) : undefined;
+    const enrolledTo = typeof req.query.enrolledTo === "string" ? new Date(req.query.enrolledTo) : undefined;
 
-    const where = { ...(classId ? { classId } : {}), ...(studentId ? { studentId } : {}) };
+    const where = {
+      ...(classId ? { classId } : {}),
+      ...(studentId ? { studentId } : {}),
+      ...((enrolledFrom || enrolledTo)
+        ? { enrolledAt: { ...(enrolledFrom ? { gte: enrolledFrom } : {}), ...(enrolledTo ? { lte: enrolledTo } : {}) } }
+        : {}),
+    };
+
+    const { field: sortField, order } = parseSort(req);
+    const allowedSort: Record<string, any> = {
+      enrolledAt: { enrolledAt: order },
+      studentId: { studentId: order },
+      classId: { classId: order },
+      student: { student: { name: order } },
+    };
+    const orderBy = (sortField && allowedSort[sortField]) || { enrolledAt: "desc" };
 
     const [data, total] = await Promise.all([
-      prisma.enrollment.findMany({ where, skip, take, orderBy: { enrolledAt: "desc" } }),
+      prisma.enrollment.findMany({ where, skip, take, orderBy, include: { student: true } }),
       prisma.enrollment.count({ where }),
     ]);
 

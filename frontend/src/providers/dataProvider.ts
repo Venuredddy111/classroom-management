@@ -33,7 +33,7 @@ async function fetchJson(url: string, options: RequestInit = {}) {
 export const dataProvider: DataProvider = {
   getApiUrl: () => API_URL,
 
-  getList: async ({ resource, pagination, filters }) => {
+  getList: async ({ resource, pagination, filters, sorters }) => {
     const params = new URLSearchParams();
 
     const current = pagination?.currentPage ?? 1;
@@ -46,6 +46,11 @@ export const dataProvider: DataProvider = {
         params.set(filter.field, String(filter.value));
       }
     });
+
+    if (sorters && sorters.length > 0) {
+      params.set("sort", sorters[0].field);
+      params.set("order", sorters[0].order);
+    }
 
     const json = await fetchJson(`${API_URL}/${resource}?${params.toString()}`);
     return { data: json.data, total: json.pagination?.total ?? json.data.length };

@@ -13,7 +13,10 @@ import { authProvider } from "./providers/authProvider";
 import { notificationProvider } from "./providers/notificationProvider";
 import { AppLayout } from "@/components/layout/app-layout";
 import { AppErrorComponent } from "@/components/app-error-component";
+import { IndexRedirect } from "@/components/index-redirect";
+import { RequireRole } from "@/components/require-role";
 
+import { DashboardPage } from "./pages/dashboard";
 import { DepartmentList, DepartmentCreate, DepartmentEdit, DepartmentShow } from "./pages/departments";
 import { SubjectList, SubjectCreate, SubjectEdit, SubjectShow } from "./pages/subjects";
 import { ClassList, ClassCreate, ClassEdit, ClassShow } from "./pages/classes";
@@ -31,6 +34,11 @@ function App() {
         routerProvider={routerBindings}
         notificationProvider={notificationProvider}
         resources={[
+          {
+            name: "dashboard",
+            list: "/dashboard",
+            meta: { label: "Dashboard" },
+          },
           {
             name: "departments",
             list: "/departments",
@@ -91,7 +99,16 @@ function App() {
               </Authenticated>
             }
           >
-            <Route index element={<NavigateToResource resource="departments" />} />
+            <Route index element={<IndexRedirect />} />
+
+            <Route
+              path="/dashboard"
+              element={
+                <RequireRole roles={["admin"]}>
+                  <DashboardPage />
+                </RequireRole>
+              }
+            />
 
             <Route path="/departments">
               <Route index element={<DepartmentList />} />

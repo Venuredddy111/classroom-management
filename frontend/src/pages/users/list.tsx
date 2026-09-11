@@ -32,11 +32,13 @@ const columns: ColumnDef<User>[] = [
   {
     accessorKey: "emailVerified",
     header: "Verified",
+    enableSorting: false,
     cell: ({ getValue }) => (getValue<boolean>() ? "Yes" : "No"),
   },
   {
     id: "actions",
     header: "",
+    enableSorting: false,
     cell: ({ row }) => <RowActions resource="users" id={row.original.id} />,
   },
 ];
@@ -44,13 +46,15 @@ const columns: ColumnDef<User>[] = [
 export const UserList = () => {
   const table = useResourceTable<User>("users", columns);
   const [search, setSearch] = useState("");
+  const [createdFrom, setCreatedFrom] = useState("");
+  const [createdTo, setCreatedTo] = useState("");
 
   return (
     <DataTable
       table={table}
       columns={columns}
       toolbar={
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Input
             placeholder="Search by name"
             className="max-w-xs"
@@ -77,6 +81,30 @@ export const UserList = () => {
               <SelectItem value="student">Student</SelectItem>
             </SelectContent>
           </Select>
+          <Input
+            type="date"
+            className="w-40"
+            value={createdFrom}
+            onChange={(e) => {
+              setCreatedFrom(e.target.value);
+              table.refineCore.setFilters(
+                [{ field: "createdFrom", operator: "eq", value: e.target.value }],
+                "merge"
+              );
+            }}
+          />
+          <Input
+            type="date"
+            className="w-40"
+            value={createdTo}
+            onChange={(e) => {
+              setCreatedTo(e.target.value);
+              table.refineCore.setFilters(
+                [{ field: "createdTo", operator: "eq", value: e.target.value }],
+                "merge"
+              );
+            }}
+          />
         </div>
       }
     />

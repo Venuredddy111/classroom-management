@@ -5,6 +5,7 @@ import type { ClassEntity, ClassStatus, Subject, User } from "@/types";
 import { useResourceTable, DataTable, RowActions } from "@/components/resource/data-table";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { capacityBadge } from "@/lib/capacity";
 import {
   Select,
   SelectContent,
@@ -27,6 +28,7 @@ const columns: ColumnDef<ClassEntity>[] = [
   {
     id: "banner",
     header: "Banner",
+    enableSorting: false,
     cell: ({ row }) =>
       row.original.bannerUrl ? (
         <img
@@ -57,10 +59,20 @@ const columns: ColumnDef<ClassEntity>[] = [
     header: "Teacher",
     cell: ({ row }) => row.original.teacher?.name ?? row.original.teacherId,
   },
-  { accessorKey: "capacity", header: "Capacity" },
+  {
+    accessorKey: "capacity",
+    header: "Capacity",
+    cell: ({ row }) => (
+      <span className="flex items-center gap-2">
+        {row.original.enrolledCount ?? 0} / {row.original.capacity}
+        {capacityBadge(row.original.enrolledCount ?? 0, row.original.capacity)}
+      </span>
+    ),
+  },
   {
     id: "actions",
     header: "",
+    enableSorting: false,
     cell: ({ row }) => <RowActions resource="classes" id={row.original.id} />,
   },
 ];
@@ -70,6 +82,9 @@ export const ClassList = () => {
   const [search, setSearch] = useState("");
   const [subjectFilter, setSubjectFilter] = useState(ALL);
   const [teacherFilter, setTeacherFilter] = useState(ALL);
+  const [capacityFilter, setCapacityFilter] = useState(ALL);
+  const [createdFrom, setCreatedFrom] = useState("");
+  const [createdTo, setCreatedTo] = useState("");
 
   const { result: subjects } = useList<Subject>({
     resource: "subjects",
@@ -86,7 +101,7 @@ export const ClassList = () => {
       table={table}
       columns={columns}
       toolbar={
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Input
             placeholder="Search by name or invite code"
             className="max-w-xs"
@@ -157,6 +172,49 @@ export const ClassList = () => {
               ))}
             </SelectContent>
           </Select>
+          <Select
+            value={capacityFilter}
+            onValueChange={(value) => {
+              setCapacityFilter(value);
+              table.refineCore.setFilters(
+                [{ field: "capacityStatus", operator: "eq", value: value === ALL ? "" : value }],
+                "merge"
+              );
+            }}
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Capacity" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>All capacities</SelectItem>
+              <SelectItem value="near">Near full</SelectItem>
+              <SelectItem value="full">Full</SelectItem>
+            </SelectContent>
+          </Select>
+          <Input
+            type="date"
+            className="w-40"
+            value={createdFrom}
+            onChange={(e) => {
+              setCreatedFrom(e.target.value);
+              table.refineCore.setFilters(
+                [{ field: "createdFrom", operator: "eq", value: e.target.value }],
+                "merge"
+              );
+            }}
+          />
+          <Input
+            type="date"
+            className="w-40"
+            value={createdTo}
+            onChange={(e) => {
+              setCreatedTo(e.target.value);
+              table.refineCore.setFilters(
+                [{ field: "createdTo", operator: "eq", value: e.target.value }],
+                "merge"
+              );
+            }}
+          />
         </div>
       }
     />

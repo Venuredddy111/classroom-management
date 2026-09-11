@@ -2,7 +2,7 @@ import { type ReactNode } from "react";
 import { flexRender, getCoreRowModel, type ColumnDef } from "@tanstack/react-table";
 import { useTable } from "@refinedev/react-table";
 import { useDelete, useNavigation, type BaseKey, type BaseRecord } from "@refinedev/core";
-import { Eye, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Eye, Pencil, Plus, Trash2 } from "lucide-react";
 
 import {
   Table,
@@ -124,9 +124,24 @@ export function DataTable<TData extends BaseRecord>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
+                    {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 font-medium"
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {header.column.getIsSorted() === "asc" ? (
+                          <ArrowUp className="size-3.5" />
+                        ) : header.column.getIsSorted() === "desc" ? (
+                          <ArrowDown className="size-3.5" />
+                        ) : (
+                          <ArrowUpDown className="size-3.5 opacity-30" />
+                        )}
+                      </button>
+                    ) : (
+                      flexRender(header.column.columnDef.header, header.getContext())
+                    )}
                   </TableHead>
                 ))}
               </TableRow>

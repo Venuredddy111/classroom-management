@@ -5,6 +5,7 @@ import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { AuthUser } from "@/providers/authProvider";
+import { GlobalSearch } from "@/components/layout/global-search";
 
 export function AppLayout() {
   const { menuItems, selectedKey } = useMenu();
@@ -12,12 +13,14 @@ export function AppLayout() {
   const { mutate: logout } = useLogout();
   const location = useLocation();
 
+  const visibleMenuItems = menuItems.filter((item) => item.name !== "dashboard" || identity?.role === "admin");
+
   return (
     <div className="flex min-h-screen">
       <aside className="flex w-56 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground">
         <div className="border-b px-4 py-4 text-lg font-semibold">Classroom</div>
         <nav className="flex-1 space-y-1 p-2">
-          {menuItems.map((item) => {
+          {visibleMenuItems.map((item) => {
             const isActive =
               item.key === selectedKey || location.pathname.startsWith(item.route ?? "\0");
             return (
@@ -39,7 +42,7 @@ export function AppLayout() {
       </aside>
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-between border-b px-6 py-3">
-          <div />
+          <GlobalSearch />
           <div className="flex items-center gap-3">
             {identity && (
               <div className="text-right text-sm">

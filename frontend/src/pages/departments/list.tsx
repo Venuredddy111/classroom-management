@@ -5,18 +5,20 @@ import { useResourceTable, DataTable, RowActions } from "@/components/resource/d
 import { Input } from "@/components/ui/input";
 
 const columns: ColumnDef<Department>[] = [
-  { accessorKey: "id", header: "ID" },
+  { accessorKey: "id", header: "ID", enableSorting: false },
   { accessorKey: "code", header: "Code" },
   { accessorKey: "name", header: "Name" },
   {
     accessorKey: "description",
     header: "Description",
+    enableSorting: false,
     cell: ({ getValue }) => <span className="line-clamp-1">{getValue<string | null>()}</span>,
   },
   { accessorKey: "totalSubjects", header: "Subjects" },
   {
     id: "actions",
     header: "",
+    enableSorting: false,
     cell: ({ row }) => <RowActions resource="departments" id={row.original.id} />,
   },
 ];

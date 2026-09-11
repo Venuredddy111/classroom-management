@@ -15,6 +15,9 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
     if (err.code === "P2025") {
       return res.status(404).json({ error: "Resource not found" });
     }
+    if (err.code === "P2003" || err.code === "P2014") {
+      return res.status(409).json({ error: "Cannot delete: this record has related data" });
+    }
   }
 
   console.error(err);
