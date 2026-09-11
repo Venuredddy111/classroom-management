@@ -50,9 +50,9 @@ const schema = z.object({
     .min(1, "Capacity must be at least 1")
     .default(50),
   status: z.enum(["active", "inactive", "archived"]).default("active"),
-  description: z.string().optional(),
-  bannerUrl: z.string().optional(),
-  bannerCldPubId: z.string().optional(),
+  description: z.string().nullable().optional(),
+  bannerUrl: z.string().nullable().optional(),
+  bannerCldPubId: z.string().nullable().optional(),
   schedules: z.array(scheduleSchema).default([]),
 });
 
@@ -171,7 +171,7 @@ export const ClassCreate = () => {
           <FormItem>
             <FormLabel>Description</FormLabel>
             <FormControl>
-              <Textarea rows={3} {...field} />
+              <Textarea rows={3} {...field} value={field.value ?? ""} />
             </FormControl>
             <FormMessage />
           </FormItem>

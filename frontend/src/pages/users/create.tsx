@@ -23,7 +23,7 @@ const schema = z.object({
   email: z.string().email(),
   role: z.enum(["admin", "teacher", "student"]),
   emailVerified: z.boolean().default(false),
-  image: z.string().optional(),
+  image: z.string().nullable().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -107,7 +107,7 @@ export const UserCreate = () => {
           <FormItem>
             <FormLabel>Image URL</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input {...field} value={field.value ?? ""} />
             </FormControl>
             <FormMessage />
           </FormItem>

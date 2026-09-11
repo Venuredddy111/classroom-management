@@ -77,7 +77,7 @@ export const SubjectEdit = () => {
           <FormItem>
             <FormLabel>Description</FormLabel>
             <FormControl>
-              <Textarea rows={4} {...field} />
+              <Textarea rows={4} {...field} value={field.value ?? ""} />
             </FormControl>
             <FormMessage />
           </FormItem>
