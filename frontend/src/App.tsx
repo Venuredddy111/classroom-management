@@ -155,7 +155,14 @@ function App() {
 
             <Route path="/join-class" element={<JoinClass />} />
 
-            <Route path="/users">
+            <Route
+              path="/users"
+              element={
+                <RequireRole roles={["admin"]}>
+                  <Outlet />
+                </RequireRole>
+              }
+            >
               <Route index element={<UserList />} />
               <Route path="create" element={<UserCreate />} />
               <Route path="edit/:id" element={<UserEdit />} />

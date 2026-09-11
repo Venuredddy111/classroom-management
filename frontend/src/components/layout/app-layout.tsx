@@ -34,7 +34,8 @@ export function AppLayout() {
   const visibleMenuItems = menuItems.filter(
     (item) =>
       (item.name !== "dashboard" || identity?.role === "admin") &&
-      (item.name !== "approvals" || identity?.role === "admin" || identity?.role === "teacher")
+      (item.name !== "approvals" || identity?.role === "admin" || identity?.role === "teacher") &&
+      (item.name !== "users" || identity?.role === "admin")
   );
 
   return (
