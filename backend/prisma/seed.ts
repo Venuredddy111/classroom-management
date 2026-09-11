@@ -11,7 +11,12 @@ async function signUp(email: string, name: string, role: "admin" | "teacher" | "
   const result = await auth.api.signUpEmail({
     body: { email, password: DEMO_PASSWORD, name, role } as any,
   });
-  return prisma.user.findUniqueOrThrow({ where: { id: (result as any).user.id } });
+  // signUpEmail always forces status: "pending" (input: false on that additionalField) —
+  // approve seeded demo accounts directly so local dev has a usable admin from the start.
+  return prisma.user.update({
+    where: { id: (result as any).user.id },
+    data: { status: "approved" },
+  });
 }
 
 async function main() {

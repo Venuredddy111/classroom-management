@@ -17,6 +17,12 @@ enum Role {
   student
 }
 
+enum UserStatus {
+  pending
+  approved
+  rejected
+}
+
 enum ClassStatus {
   active
   inactive
@@ -33,6 +39,7 @@ model User {
   image          String?
   imageCldPubId  String?
   role           Role     @default(student)
+  status         UserStatus @default(approved)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

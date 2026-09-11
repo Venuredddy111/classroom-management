@@ -21,8 +21,9 @@ const schema = z.object({
   name: z.string().min(1, "Required"),
   email: z.string().email(),
   role: z.enum(["admin", "teacher", "student"]),
+  status: z.enum(["pending", "approved", "rejected"]),
   emailVerified: z.boolean().default(false),
-  image: z.string().optional(),
+  image: z.string().nullable().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -82,6 +83,28 @@ export const UserEdit = () => {
       />
       <FormField
         control={form.control}
+        name="status"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Status</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
         name="emailVerified"
         render={({ field }) => (
           <FormItem className="flex flex-row items-center justify-between rounded-md border p-3">
@@ -99,7 +122,7 @@ export const UserEdit = () => {
           <FormItem>
             <FormLabel>Image URL</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input {...field} value={field.value ?? ""} />
             </FormControl>
             <FormMessage />
           </FormItem>

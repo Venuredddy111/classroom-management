@@ -17,6 +17,7 @@ import { IndexRedirect } from "@/components/index-redirect";
 import { RequireRole } from "@/components/require-role";
 
 import { DashboardPage } from "./pages/dashboard";
+import { ApprovalsList } from "./pages/approvals";
 import { DepartmentList, DepartmentCreate, DepartmentEdit, DepartmentShow } from "./pages/departments";
 import { SubjectList, SubjectCreate, SubjectEdit, SubjectShow } from "./pages/subjects";
 import { ClassList, ClassCreate, ClassEdit, ClassShow } from "./pages/classes";
@@ -38,6 +39,11 @@ function App() {
             name: "dashboard",
             list: "/dashboard",
             meta: { label: "Dashboard" },
+          },
+          {
+            name: "approvals",
+            list: "/approvals",
+            meta: { label: "Approvals" },
           },
           {
             name: "departments",
@@ -106,6 +112,15 @@ function App() {
               element={
                 <RequireRole roles={["admin"]}>
                   <DashboardPage />
+                </RequireRole>
+              }
+            />
+
+            <Route
+              path="/approvals"
+              element={
+                <RequireRole roles={["admin", "teacher"]}>
+                  <ApprovalsList />
                 </RequireRole>
               }
             />

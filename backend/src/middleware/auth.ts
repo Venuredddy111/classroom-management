@@ -35,7 +35,13 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.user) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-  next(); 
+  if (req.user.status !== "approved") {
+    return res.status(403).json({
+      error: req.user.status === "rejected" ? "Account rejected" : "Account pending approval",
+      status: req.user.status,
+    });
+  }
+  next();
 }
 
 /** 403s any authenticated request whose role isn't in the allowed list. */

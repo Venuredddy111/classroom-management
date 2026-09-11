@@ -13,7 +13,29 @@ export function AppLayout() {
   const { mutate: logout } = useLogout();
   const location = useLocation();
 
-  const visibleMenuItems = menuItems.filter((item) => item.name !== "dashboard" || identity?.role === "admin");
+  if (identity && identity.status !== "approved") {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
+        <h1 className="text-xl font-semibold">
+          {identity.status === "rejected" ? "Account not approved" : "Waiting for approval"}
+        </h1>
+        <p className="max-w-md text-muted-foreground">
+          {identity.status === "rejected"
+            ? "Your account request was not approved. Contact an administrator if you believe this is a mistake."
+            : "Your account is pending approval from an admin or teacher. You'll get access once it's approved."}
+        </p>
+        <Button variant="outline" onClick={() => logout()}>
+          Log out
+        </Button>
+      </div>
+    );
+  }
+
+  const visibleMenuItems = menuItems.filter(
+    (item) =>
+      (item.name !== "dashboard" || identity?.role === "admin") &&
+      (item.name !== "approvals" || identity?.role === "admin" || identity?.role === "teacher")
+  );
 
   return (
     <div className="flex min-h-screen">

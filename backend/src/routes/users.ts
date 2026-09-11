@@ -24,8 +24,13 @@ const userUpdateSchema = z.object({
   email: z.string().email().optional(),
   emailVerified: z.boolean().optional(),
   role: z.enum(["admin", "teacher", "student"]).optional(),
+  status: z.enum(["pending", "approved", "rejected"]).optional(),
   image: z.string().nullable().optional(),
   imageCldPubId: z.string().nullable().optional(),
+});
+
+const userStatusUpdateSchema = z.object({
+  status: z.enum(["approved", "rejected"]),
 });
 
 // GET /api/users
@@ -36,12 +41,14 @@ usersRouter.get(
   asyncHandler(async (req, res) => {
     const { page, limit, skip, take } = getPagination(req);
     const role = typeof req.query.role === "string" ? req.query.role : undefined;
+    const status = typeof req.query.status === "string" ? req.query.status : undefined;
     const search = typeof req.query.search === "string" ? req.query.search : undefined;
     const createdFrom = typeof req.query.createdFrom === "string" ? new Date(req.query.createdFrom) : undefined;
     const createdTo = typeof req.query.createdTo === "string" ? new Date(req.query.createdTo) : undefined;
 
     const where = {
       ...(role ? { role: role as any } : {}),
+      ...(status ? { status: status as any } : {}),
       ...(search ? { name: { contains: search, mode: "insensitive" as const } } : {}),
       ...((createdFrom || createdTo)
         ? { createdAt: { ...(createdFrom ? { gte: createdFrom } : {}), ...(createdTo ? { lte: createdTo } : {}) } }
@@ -84,12 +91,53 @@ usersRouter.post(
         email: body.email,
         emailVerified: body.emailVerified ?? false,
         role: body.role,
+        status: "approved",
         image: body.image ?? null,
         imageCldPubId: body.imageCldPubId ?? null,
       },
     });
 
     res.status(201).json({ data: user, message: "User created successfully" });
+  })
+);
+
+// GET /api/users/pending — admin sees all pending users; teacher sees pending students only.
+usersRouter.get(
+  "/pending",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const role = req.user!.role;
+    if (role === "student") throw new AppError(403, "Forbidden");
+
+    const { page, limit, skip, take } = getPagination(req);
+    const where =
+      role === "admin" ? { status: "pending" as const } : { status: "pending" as const, role: "student" as const };
+
+    const [data, total] = await Promise.all([
+      prisma.user.findMany({ where, skip, take, orderBy: { createdAt: "asc" } }),
+      prisma.user.count({ where }),
+    ]);
+
+    res.json({ data, pagination: buildPaginationMeta(page, limit, total), message: "Pending users retrieved successfully" });
+  })
+);
+
+// PUT /api/users/:id/status — admin: any target; teacher: student targets only.
+usersRouter.put(
+  "/:id/status",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const body = userStatusUpdateSchema.parse(req.body);
+    const caller = req.user!;
+    if (caller.role === "student") throw new AppError(403, "Forbidden");
+
+    const target = await prisma.user.findUnique({ where: { id: req.params.id } });
+    if (!target) throw new AppError(404, "User not found");
+
+    if (caller.role === "teacher" && target.role !== "student") throw new AppError(403, "Forbidden");
+
+    const user = await prisma.user.update({ where: { id: req.params.id }, data: { status: body.status } });
+    res.json({ data: user, message: "User status updated successfully" });
   })
 );
 

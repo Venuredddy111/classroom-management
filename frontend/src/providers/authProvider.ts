@@ -8,6 +8,7 @@ export interface AuthUser {
   name: string;
   email: string;
   role: Role;
+  status: "pending" | "approved" | "rejected";
 }
 
 async function postJson(path: string, body: unknown) {
@@ -78,6 +79,12 @@ export const authProvider: AuthProvider = {
   getIdentity: async () => {
     const session = await getSession();
     if (!session?.user) return null;
-    return { id: session.user.id, name: session.user.name, email: session.user.email, role: session.user.role };
+    return {
+      id: session.user.id,
+      name: session.user.name,
+      email: session.user.email,
+      role: session.user.role,
+      status: session.user.status,
+    };
   },
 };

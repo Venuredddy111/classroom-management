@@ -36,6 +36,11 @@ export const auth = betterAuth({
         defaultValue: "student",
         input: true,
       },
+      status: {
+        type: "string",
+        defaultValue: "pending",
+        input: false,
+      },
       imageCldPubId: {
         type: "string",
         required: false,

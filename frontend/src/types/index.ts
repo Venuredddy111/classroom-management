@@ -1,6 +1,7 @@
 // Mirrors the schemas in swagger.json.
 
 export type Role = "admin" | "teacher" | "student";
+export type UserStatus = "pending" | "approved" | "rejected";
 export type ClassStatus = "active" | "inactive" | "archived";
 
 export interface Schedule {
@@ -66,6 +67,7 @@ export interface User {
   image?: string | null;
   imageCldPubId?: string | null;
   role: Role;
+  status: UserStatus;
   createdAt: string;
   updatedAt: string;
 }

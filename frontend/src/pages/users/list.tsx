@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Role, User } from "@/types";
+import type { Role, User, UserStatus } from "@/types";
 import { useResourceTable, DataTable, RowActions } from "@/components/resource/data-table";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,12 @@ const roleVariant: Record<Role, "destructive" | "default" | "secondary"> = {
   student: "secondary",
 };
 
+const statusVariant: Record<UserStatus, "default" | "secondary" | "destructive"> = {
+  approved: "default",
+  pending: "secondary",
+  rejected: "destructive",
+};
+
 const columns: ColumnDef<User>[] = [
   { accessorKey: "name", header: "Name" },
   { accessorKey: "email", header: "Email" },
@@ -27,6 +33,14 @@ const columns: ColumnDef<User>[] = [
     cell: ({ getValue }) => {
       const role = getValue<Role>();
       return <Badge variant={roleVariant[role]}>{role}</Badge>;
+    },
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ getValue }) => {
+      const status = getValue<UserStatus>();
+      return <Badge variant={statusVariant[status]}>{status}</Badge>;
     },
   },
   {
@@ -79,6 +93,20 @@ export const UserList = () => {
               <SelectItem value="admin">Admin</SelectItem>
               <SelectItem value="teacher">Teacher</SelectItem>
               <SelectItem value="student">Student</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            onValueChange={(value) =>
+              table.refineCore.setFilters([{ field: "status", operator: "eq", value }], "merge")
+            }
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
             </SelectContent>
           </Select>
           <Input
