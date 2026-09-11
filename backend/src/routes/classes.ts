@@ -160,7 +160,11 @@ classesRouter.get(
     const id = Number(req.params.id);
     const cls = await prisma.class.findUnique({
       where: { id },
-      include: { subject: true, teacher: true, _count: { select: { enrollments: true } } },
+      include: {
+        subject: { include: { department: true } },
+        teacher: true,
+        _count: { select: { enrollments: true } },
+      },
     });
     if (!cls) throw new AppError(404, "Class not found");
     const { _count, ...rest } = cls;

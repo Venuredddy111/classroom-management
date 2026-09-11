@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useShow, useList, useCreate, useDelete, useInvalidate, useGetIdentity } from "@refinedev/core";
+import { useShow, useList, useCreate, useDelete, useInvalidate, useGetIdentity, useNavigation } from "@refinedev/core";
 import type { AuthUser } from "@/providers/authProvider";
 import type { ClassEntity, ClassStatus, Enrollment } from "@/types";
 import { Descriptions } from "@/components/resource/descriptions";
@@ -8,7 +8,7 @@ import { capacityBadge } from "@/lib/capacity";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Trash2 } from "lucide-react";
+import { Pencil, RefreshCw, Trash2 } from "lucide-react";
 
 const statusVariant: Record<ClassStatus, "default" | "secondary" | "outline"> = {
   active: "default",
@@ -34,8 +34,14 @@ export const ClassShow = () => {
 
   const { mutate: createEnrollment, mutation: createMutation } = useCreate();
   const { mutate: deleteEnrollment } = useDelete();
+  const { edit } = useNavigation();
 
   const enrolledCount = record?.enrolledCount ?? enrollmentsResult.data.length;
+
+  function refreshEnrollments() {
+    query.refetch();
+    enrollmentsQuery.refetch();
+  }
 
   if (query.isLoading) return <div className="text-muted-foreground">Loading...</div>;
 
@@ -48,6 +54,7 @@ export const ClassShow = () => {
         items={[
           { label: "Name", value: record?.name },
           { label: "Invite Code", value: record?.inviteCode },
+          { label: "Department", value: record?.subject?.department?.name ?? "—" },
           { label: "Subject", value: record?.subject?.name ?? record?.subjectId },
           { label: "Teacher", value: record?.teacher?.name ?? record?.teacherId },
           {
@@ -93,7 +100,17 @@ export const ClassShow = () => {
       </div>
 
       <div>
-        <h3 className="mb-2 text-sm font-semibold text-muted-foreground">Enrolled Students</h3>
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-muted-foreground">Enrolled Students</h3>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            disabled={enrollmentsQuery.isFetching}
+            onClick={refreshEnrollments}
+          >
+            <RefreshCw className={enrollmentsQuery.isFetching ? "size-4 animate-spin" : "size-4"} />
+          </Button>
+        </div>
         {canManageEnrollments && (
           <div className="mb-3 flex max-w-md items-center gap-2">
             <ComboboxField
@@ -148,7 +165,10 @@ export const ClassShow = () => {
                     <TableCell>{e.student?.email}</TableCell>
                     <TableCell>{e.enrolledAt}</TableCell>
                     {canManageEnrollments && (
-                      <TableCell className="text-right">
+                      <TableCell className="flex justify-end gap-1 text-right">
+                        <Button variant="ghost" size="icon-sm" onClick={() => edit("enrollments", e.id)}>
+                          <Pencil className="size-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon-sm"
